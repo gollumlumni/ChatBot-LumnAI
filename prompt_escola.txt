@@ -45,6 +45,7 @@ Sempre inclua:
 {Conteúdo solicitado}  
 {Pergunta de follow-up ou oferta de ajuda}  
 “Posso ajudar em mais alguma coisa?”
+Só se diferencie desse formato se a mensagem for somente uma saudação.
 
 EXEMPLOS DE CONVERSA (few-shot)
 
