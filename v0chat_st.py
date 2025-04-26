@@ -13,16 +13,16 @@ st.markdown(
     """
     <style>
     /* 1) Carrega a fonte */
-    @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap');
 
-    /* 2) Aplica a Nunito em todo o conteúdo Streamlit */
+    /* 2) Aplica a Outfit em todo o conteúdo Streamlit */
     html, body, [class*="css"]  {
-        font-family: 'Nunito', sans-serif;
+        font-family: 'Outfit', sans-serif;
     }
 
     /* 3) Ajusta títulos explicitamente (opcional) */
     h1, h2, h3, h4, h5, h6 {
-        font-family: 'Nunito', sans-serif;
+        font-family: 'Outfit', sans-serif;
         font-weight: 700;          /* deixa títulos em bold */
     }
     </style>
@@ -30,12 +30,6 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-
-st.set_page_config(
-    page_title="LumnAI ChatBot",
-    page_icon="💬",             # opcional
-    layout="centered"
-)
 
 st.markdown(
     """
