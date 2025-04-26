@@ -1,8 +1,8 @@
 import os, pathlib, streamlit as st
 from openai import OpenAI
-from dotenv import load_dotenv   # só para rodar localmente
+from dotenv import load_dotenv          # só útil localmente
 
-load_dotenv()                    # lê .env quando existe
+load_dotenv()                           # lê .env se existir
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 BASE_DIR      = pathlib.Path(__file__).parent
