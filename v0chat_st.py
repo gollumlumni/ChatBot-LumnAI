@@ -1,13 +1,54 @@
 import os, pathlib, streamlit as st
 from openai import OpenAI
-from dotenv import load_dotenv          # só útil localmente
+from dotenv import load_dotenv   # só para rodar localmente
 
-load_dotenv()                           # lê .env se existir
+load_dotenv()                    # lê .env quando existe
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 BASE_DIR      = pathlib.Path(__file__).parent
 SYSTEM_PROMPT = (BASE_DIR / "prompt_escola.txt").read_text(encoding="utf8")
 
+
+st.markdown(
+    """
+    <style>
+    /* 1) Carrega a fonte */
+    @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700&display=swap');
+
+    /* 2) Aplica a Nunito em todo o conteúdo Streamlit */
+    html, body, [class*="css"]  {
+        font-family: 'Nunito', sans-serif;
+    }
+
+    /* 3) Ajusta títulos explicitamente (opcional) */
+    h1, h2, h3, h4, h5, h6 {
+        font-family: 'Nunito', sans-serif;
+        font-weight: 700;          /* deixa títulos em bold */
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
+
+st.set_page_config(
+    page_title="LumnAI ChatBot",
+    page_icon="💬",             # opcional
+    layout="centered"
+)
+
+st.markdown(
+    """
+    <h1 style='text-align:center; margin-top:0'>
+        <span style='color:#ff5c35;'>Lumn</span><b>AI</b> ChatBot
+    </h1>
+    <p style='text-align:center; font-size:0.9rem; color:gray;'>
+        LumnAI ChatBot · beta
+    </p>
+    <hr style='margin-top:1rem;'>
+    """,
+    unsafe_allow_html=True
+)
 
 # ───────────────────────────────
 # 2) Estado de conversa
