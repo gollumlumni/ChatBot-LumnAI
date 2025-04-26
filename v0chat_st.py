@@ -1,12 +1,15 @@
-import os, pathlib, openai, streamlit as st
-from dotenv import load_dotenv        # opcional para testes locais
+import os, pathlib, streamlit as st
+from openai import OpenAI
+from dotenv import load_dotenv   # só para rodar localmente
 
-openai.api_key = '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'
+load_dotenv()                    # lê .env quando existe
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 BASE_DIR      = pathlib.Path(__file__).parent
 SYSTEM_PROMPT = (BASE_DIR / "prompt_escola.txt").read_text(encoding="utf8")
 
-# ──────────────────────────────────
+
+# ───────────────────────────────
 # 2) Estado de conversa
 # ──────────────────────────────────
 if "messages" not in st.session_state:
@@ -28,7 +31,7 @@ if user := st.chat_input("Digite aqui…"):
         st.markdown(user)
 
     # chamada à API
-    resp = openai.chat.completions.create(
+    resp = client.chat.completions.create(
         model="gpt-4o-mini",
         messages=st.session_state.messages,
         max_tokens=400,
@@ -42,3 +45,9 @@ if user := st.chat_input("Digite aqui…"):
 
     # salva no histórico
     st.session_state.messages.append({"role": "assistant", "content": answer})
+
+
+
+
+
+
