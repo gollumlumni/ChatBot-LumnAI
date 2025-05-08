@@ -61,6 +61,7 @@ SYSTEM_PROMPT = system_prompt
 
 
 print(system_prompt)
+
 st.markdown(
     """
     <style>
@@ -118,7 +119,7 @@ if user := st.chat_input("Digite aqui…"):
         model="gpt-4o-mini",
         messages=st.session_state.messages,          
         max_tokens=400,
-        temperature=0.5,
+        temperature=0.7,
     )
 
     message = resp.choices[0].message
