@@ -47,135 +47,97 @@ colegio = {
 }
 
 
-# inputando o template de prompt
-raw = Path("prompt_template.txt").read_text(encoding="utf8")
-t = Template(raw)
-# 3) substitua só os $placeholders
-system_prompt = t.safe_substitute(**colegio)
+# === CARREGAMENTO DOS PROMPTS ===
+raw_qualificacao = Path("prompt_qualificacao.txt").read_text(encoding="utf8")
+raw_agendamento = Path("prompt_agendamento.txt").read_text(encoding="utf8")
+PROMPT_QUALIFICACAO = Template(raw_qualificacao).safe_substitute(**colegio)
+PROMPT_AGENDAMENTO = Template(raw_agendamento).safe_substitute(**colegio)
 
-load_dotenv()                    # lê .env quando existe
+# === CONFIG OPENAI ===
+load_dotenv()
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-BASE_DIR      = pathlib.Path(__file__).parent
-SYSTEM_PROMPT = system_prompt
+# === INTERFACE STREAMLIT (CSS E CABEÇALHO) ===
+st.markdown("""<style>...</style>""", unsafe_allow_html=True)
+st.markdown("""
+<h1 style='text-align:center;'>Lumn<span style='color:#ff5c35;'>AI</span> ChatBot</h1>
+<p style='text-align:center;'>LumnAI ChatBot · beta</p><hr>
+""", unsafe_allow_html=True)
 
-
-print(system_prompt)
-
-st.markdown(
-    """
-    <style>
-    /* 1) Carrega a fonte */
-    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap');
-
-    /* 2) Aplica a Outfit em todo o conteúdo Streamlit */
-    html, body, [class*="css"]  {
-        font-family: 'Outfit', sans-serif;
-    }
-json
-    /* 3) Ajusta títulos explicitamente (opcional) */
-    h1, h2, h3, h4, h5, h6 {
-        font-family: 'Outfit', sans-serif;
-        font-weight: 700;          /* deixa títulos em bold */
-    }
-    </style>
-    """,
-    unsafe_allow_html=True
-)
-
-
-st.markdown(
-    """
-    <h1 style='text-align:center; margin-top:0'>
-        <span style='color:#ff5c35;'>Lumn</span><b>AI</b> ChatBot
-    </h1>
-    <p style='text-align:center; font-size:0.9rem; color:gray;'>
-        LumnAI ChatBot · beta
-    </p>
-    <hr style='margin-top:1rem;'>
-    """,
-    unsafe_allow_html=True
-)
-
-
+# === ESTADO INICIAL ===
 if "messages" not in st.session_state:
+    st.session_state.lead_qualificado = False
     st.session_state.messages = [
-        {"role": "system", "content": SYSTEM_PROMPT}
+        {"role": "system", "content": PROMPT_QUALIFICACAO}
     ]
 
-# mostra histórico
-for m in st.session_state.messages[1:]:            # pula o system
+# === MOSTRA HISTÓRICO DE CONVERSA ===
+for m in st.session_state.messages[1:]:
     with st.chat_message(m["role"]):
         st.markdown(m["content"])
 
-
+# === INPUT DO USUÁRIO ===
 if user := st.chat_input("Digite aqui…"):
     st.session_state.messages.append({"role": "user", "content": user})
     with st.chat_message("user"):
         st.markdown(user)
 
-    # chamada à API
+    # CHAMADA OPENAI
+    prompt_usado = PROMPT_AGENDAMENTO if st.session_state.lead_qualificado else PROMPT_QUALIFICACAO
+    st.session_state.messages[0] = {"role": "system", "content": prompt_usado}
+
     resp = client.chat.completions.create(
         model="gpt-4o-mini",
-        messages=st.session_state.messages,          
+        messages=st.session_state.messages,
         max_tokens=400,
         temperature=0.7,
     )
 
     message = resp.choices[0].message
-    print(message)
     answer = message.content.strip() if message.content else ""
 
-    # Verifica se há um JSON na resposta
+    # === VERIFICA JSON DE FUNÇÃO ===
     code_block_match = re.search(r"```json\s*(\{.*?\})\s*```", answer, re.DOTALL)
-
-    if code_block_match:
-        json_match = code_block_match.group(1)
-    else:
-        # Fallback: procura qualquer JSON "solto"
-        json_match = re.search(r'\{.*\}', answer, re.DOTALL)
-        json_match = json_match.group(0) if json_match else None
+    json_match = code_block_match.group(1) if code_block_match else None
 
     if json_match:
-        print('chamou a função')
         args = json.loads(json_match)
+        nome_funcao = args.get("name")
 
-        print("Dados recebidos:", args)
+        # === FLUXO: REGISTRAR LEAD ===
+        if nome_funcao == "registrar_lead":
+            st.session_state.lead_qualificado = True
+            print(f"Dados de qualificação:\n\n{args}")
 
-        mensagens_contexto = st.session_state.messages[-6:]
+            hist = st.session_state.messages[1:]
+            st.session_state.messages = [{"role": "system", "content": PROMPT_AGENDAMENTO}] + hist
 
-            # Formata contexto com mensagens anteriores + dados do colégio
-        contexto_para_resposta = [
-                {"role": "system", "content": f"""Você é um atendente simpático do {colegio['nome_da_escola']}.
-                Como informações complementares sobre o colégio: \n{colegio}"""}
+            # Gera a resposta automática do assistente para iniciar agendamento
+            resposta_agendamento = client.chat.completions.create(
+                model="gpt-4o-mini",
+                messages=st.session_state.messages,
+                max_tokens=200,
+                temperature=0.7
+            ).choices[0].message.content.strip()
+
+            with st.chat_message("assistant"):
+                st.markdown(resposta_agendamento)
+
+            st.session_state.messages.append({
+                "role": "assistant",
+                "content": resposta_agendamento
+            })
+
+        # === FLUXO: AGENDAR VISITA ===
+        elif nome_funcao == "agendar_visita":
+            print(f"Dados de agendamento:\n\n{args}")
             
-            ] + mensagens_contexto + [{
-                    "role": "user",
-                    "content": "Você acabou de registrar informações do responsável ou agendou uma visita. Envie uma mensagem bem curta cordial continuando a conversa e confirmando o registro. Se for registro de Lead, perguntar se a pessoa não quer fazer uma visita ao colégio. Se for um agendamento, pergunte se pode ajudar com mais alguma coisa(não recomende outro agendamento)."
-                }]
 
-        resposta = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=contexto_para_resposta,
-            max_tokens=100,
-            temperature=0.2
-        ).choices[0].message.content.strip()
-
-        with st.chat_message("assistant"):
-            st.markdown(resposta)
-
-        st.session_state.messages.append({"role": "assistant", "content": resposta})
-
-    elif answer:
-        # se não houve chamada de função, é porque ainda faltam dados
-        print(f'Ainda estou aqui:\n{user}\n')
+    else:
+        # Sem JSON, apenas responde normalmente
         with st.chat_message("assistant"):
             st.markdown(answer)
-        st.session_state.messages.append({"role":"assistant","content":answer})
-
-
-
-
+        st.session_state.messages.append({"role": "assistant", "content": answer})
 
 
 
