@@ -43,9 +43,24 @@ colegio = {
                             Usuário: (completou qualificação)
                             Assistente: “Mas, antes de qualquer coisa, gostaria de te convidar para vir até a escola e tomar um café com as nossas fundadoras e coordenadora pedagógica, o que você acha? 🥰 
                             Seria bom porque poderíamos aprofundar no nosso projeto pedagógico, contato com professores e rotina mesmo, além de você conhecer de pertinho esse espaço (que é incrível e, por mais que veja no vídeo, é muuuito diferente ver de perto🤞).”
-                            """
+                            
+                            Usuário: (assistente perguntou se quer agendar) Não.
+                            Assistente:  Ex: “Entendo! 😊 Mas queria muito te convidar para vir até o colégio tomar um café ☕ com as nossas fundadoras e a coordenadora pedagógica.
+                            É uma ótima oportunidade para conhecer melhor o nosso projeto, conversar com a equipe e ver de perto a rotina dos alunos.
+                            A estrutura é linda — mesmo com fotos e vídeos, nada se compara a estar aqui presencialmente. Que tal? 😉”  
+                            Usuário: “Acho que não mesmo.” 
+                            Assistente: “Tudo bem! Posso te ajudar com mais alguma coisa?” 
+                            """,
+    "agenda_disponivel_semana": {
+        "segunda-feira": ["07:30", "09:00", "10:30", "13:30", "15:00", "16:30"],
+        "terça-feira": ["07:30", "09:00", "10:30", "13:30", "15:00", "16:30"],
+        "quarta-feira": ["07:30", "09:00", "10:30", "13:30", "15:00", "16:30"],
+        "quinta-feira": ["07:30", "09:00", "10:30", "13:30", "15:00", "16:30"],
+        "sexta-feira": ["07:30", "09:00", "10:30", "13:30", "15:00", "16:30"],
+        "sábado": ["09:00", "10:30"],
+        "domingo": []
+    }
 }
-
 
 # === CARREGAMENTO DOS PROMPTS ===
 raw_qualificacao = Path("prompt_qualificacao.txt").read_text(encoding="utf8")
@@ -131,6 +146,16 @@ if user := st.chat_input("Digite aqui…"):
         # === FLUXO: AGENDAR VISITA ===
         elif nome_funcao == "agendar_visita":
             print(f"Dados de agendamento:\n\n{args}")
+
+            mensagem = "Visita agendada com sucesso! 😊 Posso te ajudar com mais alguma coisa?"
+
+            with st.chat_message("assistant"):
+                st.markdown(mensagem)
+
+            st.session_state.messages.append({
+                "role": "assistant",
+                "content": mensagem
+            })
             
 
     else:
@@ -138,7 +163,4 @@ if user := st.chat_input("Digite aqui…"):
         with st.chat_message("assistant"):
             st.markdown(answer)
         st.session_state.messages.append({"role": "assistant", "content": answer})
-
-
-
 
