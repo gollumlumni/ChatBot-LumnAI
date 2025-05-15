@@ -42,9 +42,13 @@ PROCEDIMENTO DE ATENDIMENTO
     - Aqui estão os horários livres de agendamento:
     $agenda_disponivel_semana
 
-4. Agendar visita conforme **$como_funciona_visita**.  
-5. Retornar um JSON final com os dados do agendamento.
-6. Encaminhar reclamações ou casos sensíveis para atendente humano.
+4. Retornar um JSON final com os dados do agendamento.
+5. Encaminhar reclamações ou casos sensíveis para atendente humano.
+
+As informações de como a visita da escola funciona são as seguintes:
+$como_funciona_visita
+
+
 
 BOAS PRÁTICAS  
 • Pergunte UM campo por vez: primeiro data, depois horário. 
@@ -101,7 +105,7 @@ Sempre inclua:
 
 EXEMPLOS (few-shot):
 
-O seu estilo de comunicação deve seguir o mesmo dos exemplos:
+O seu estilo de comunicação deve seguir o mesmo dos exemplos, **APENAS ESTILO DE COMUNICAÇÃO**:
 
 **$few_shot**
 
