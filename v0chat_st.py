@@ -5,62 +5,16 @@ from pathlib import Path
 from string import Template
 import json
 import re
+import pandas as pd
 
 
 
-colegio = {
-    "nome_atendente":       "Victória",
-    "nome_da_escola":       "Colégio Horizonte",
-    "tom_de_voz":           "Cordial e Profissional",
-    "personalizacao_tom":   "Você deve, sempre que possível, usar emojis, responder de maneira alegre",
-    "segmentos":            "Infantil I-Jardim II; Fund. I-II; Médio",
-    "links_publi":          "link de video 1, link do site",
-    "periodos":             "Matutino (07h30-12h), Vespertino (13h30-18h)",
-    "contatos":             "Secretaria: secretaria@horizonte.com | (85) 3333-2222  ; Financeiro: financeiro@horizonte.com | (85) 3333-2222 ; Coordenação Pedagógica: coorpedag@horizonte.com | (85) 3333-2222",
-    "endereco":             "Av. das Flores, 1234 - Fortaleza/CE",
-    "matriculas":           "02/05/2025 a 31/07/2025 (taxa R$ 500)",
-    "mensalidades":         "Infantil: R$1150; Fund I: R$1250; Fund II: R$1350; Médio: R$1550",
-    "info_geral_escola":    "O Colégio Horizonte conta com uma infraestrutura moderna e acolhedora, com salas de aula amplas e iluminadas, laboratórios de Ciências e Informática equipados com recursos de última geração e espaços de convivência para promover a interação entre os alunos. Nossa metodologia baseia-se no aprendizado ativo, com projetos interdisciplinares, uso de tecnologias educacionais e avaliações formativas que acompanham o desenvolvimento individual. Valorizamos o protagonismo dos estudantes, estimulando a criatividade e o pensamento crítico por meio de atividades práticas, oficinas temáticas e aulas ao ar livre. Além disso, oferecemos programas de reforço e apoio psicopedagógico, garantindo um ambiente seguro e colaborativo onde cada família e cada aluno se sentem parte de uma comunidade comprometida com a excelência acadêmica e o respeito mútuo. link de video 1, link de video 2.",
-    "info_matricula":       "certidão de nascimento, CPF, comprovante de residência, RG dos responsáveis",
-    "qualificacao":         "`nome_completo_responsavel`, `nome_completo_aluno`, `serie_aluno`, `email_responsavel`",
-    "redirecionamentos":    "Se a dúvida for sobre boletos, pagamentos ou inadimplência, redirecione para o setor Financeiro. Para assuntos pedagógicos, como metodologia ou reclamações acadêmicas, oriente o contato com a Coordenação Pedagógica. Em casos gerais ou quando não souber a resposta, encaminhe para a Secretaria. Os contatos são: {contatos}.",
-    "como_funciona_visita": "primeiro preenchemos cadastro e depois sugerimos datas",
-    "few_shot":             """
-                            Usuário: “Oi”  
-                            Assistente: “Boa tarde! Tudo bem com você? O Colégio Horizonte fica feliz com o seu contato🥰. Meu nome é Victória. Para que eu possa seguir com o atendimento, pode me falar o seu nome e como posso te ajudar?”
+link = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT06GPLcaSYiLGz3BgrIb8NLSmYlxXRQcKKXHxnlSXUjJM1poE5Z427CjJZv5iJMUnYVAvCZPuL0NnX/pub?output=csv'
+colegio = pd.read_csv(link, skiprows= 1)
+colegio.drop(columns= 'Unnamed: 0', inplace= True)
 
-                            Usuário: “Quanto custa a mensalidade do 7º ano?”  
-                            Assistente: “Olá! Para o 7º ano (Fundamental II), a mensalidade de 2025 é de **R$ 1.350,00**. Gostaria de saber sobre descontos ou bolsas?”
-
-                            Usuário: “Quero matricular minha filha no Jardim II.”  
-                            Assistente: “Perfeito! Para iniciar a matrícula no Jardim II você precisará de:  
-                            (1) certidão de nascimento  
-                            (2) CPF da criança  
-                            (3) comprovante de residência  
-                            (4) RG dos responsáveis  
-                            Deseja agendar uma visita ou receber o formulário digital?
-                            
-                            Usuário: (completou qualificação)
-                            Assistente: “Mas, antes de qualquer coisa, gostaria de te convidar para vir até a escola e tomar um café com as nossas fundadoras e coordenadora pedagógica, o que você acha? 🥰 
-                            Seria bom porque poderíamos aprofundar no nosso projeto pedagógico, contato com professores e rotina mesmo, além de você conhecer de pertinho esse espaço (que é incrível e, por mais que veja no vídeo, é muuuito diferente ver de perto🤞).”
-                            
-                            Usuário: (assistente perguntou se quer agendar) Não.
-                            Assistente:  Ex: “Entendo! 😊 Mas queria muito te convidar para vir até o colégio tomar um café ☕ com as nossas fundadoras e a coordenadora pedagógica.
-                            É uma ótima oportunidade para conhecer melhor o nosso projeto, conversar com a equipe e ver de perto a rotina dos alunos.
-                            A estrutura é linda — mesmo com fotos e vídeos, nada se compara a estar aqui presencialmente. Que tal? 😉”  
-                            Usuário: “Acho que não mesmo.” 
-                            Assistente: “Tudo bem! Posso te ajudar com mais alguma coisa?” 
-                            """,
-    "agenda_disponivel_semana": {
-        "segunda-feira": ["07:30", "09:00", "10:30", "13:30", "15:00", "16:30"],
-        "terça-feira": ["07:30", "09:00", "10:30", "13:30", "15:00", "16:30"],
-        "quarta-feira": ["07:30", "09:00", "10:30", "13:30", "15:00", "16:30"],
-        "quinta-feira": ["07:30", "09:00", "10:30", "13:30", "15:00", "16:30"],
-        "sexta-feira": ["07:30", "09:00", "10:30", "13:30", "15:00", "16:30"],
-        "sábado": ["09:00", "10:30"],
-        "domingo": []
-    }
-}
+colegio.set_index('Variável', inplace= True)
+colegio = colegio.to_dict()['Input']
 
 # === CARREGAMENTO DOS PROMPTS ===
 raw_qualificacao = Path("prompt_qualificacao.txt").read_text(encoding="utf8")
