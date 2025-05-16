@@ -1,8 +1,3 @@
-[server]
-enableCORS = false
-enableXsrfProtection = false
-showFooter = false
-showSidebarNavigation = false
 [theme]
 base="light"
 primaryColor="#fc7d55"
