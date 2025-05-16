@@ -26,11 +26,21 @@ PROMPT_AGENDAMENTO = Template(raw_agendamento).safe_substitute(**colegio)
 load_dotenv()
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-# === INTERFACE STREAMLIT (CSS E CABEÇALHO) ===
-st.markdown("""<style>...</style>""", unsafe_allow_html=True)
 st.markdown("""
-<h1 style='text-align:center;'>Lumn<span style='color:#ff5c35;'>AI</span> ChatBot</h1>
-<p style='text-align:center;'>LumnAI ChatBot · beta</p><hr>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
+
+/* fonte + cores do tema */
+html, body, [class*="css"]  {
+    font-family: 'Outfit', sans-serif;
+}
+</style>
+""", unsafe_allow_html=True)
+
+st.markdown("""
+<h1 style='text-align:center;'>Lumn<span style='color:#fc7d55;'>AI</span></h1>
+<h3 style='text-align:center; margin-top:-6px;'>ChatBot Educacional</h3>
+<p style='text-align:center;'>beta · Qualificação e Agendamento </p><hr>
 """, unsafe_allow_html=True)
 
 # === ESTADO INICIAL ===
